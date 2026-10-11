@@ -1,0 +1,65 @@
+{
+  "name": "quire",
+  "productName": "Quire",
+  "version": "0.1.0",
+  "description": "A desktop writing studio for long projects: binder, corkboard, outliner, inspector, targets, snapshots and compile.",
+  "author": "chapter57",
+  "homepage": "https://github.com/chapter57/quire",
+  "repository": "github:chapter57/quire",
+  "main": "src/main/main.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.js test/*.test.mjs",
+    "test:e2e": "node test/e2e/run.js",
+    "dist": "electron-builder",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win",
+    "dist:linux": "electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "44.7.0",
+    "electron-builder": "26.15.3",
+    "playwright-core": "1.64.0"
+  },
+  "build": {
+    "appId": "com.chapter57.quire",
+    "productName": "Quire",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "fileAssociations": [
+      {
+        "ext": "quire",
+        "name": "Quire Project",
+        "role": "Editor",
+        "isPackage": true
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Office",
+      "maintainer": "chapter57"
+    }
+  }
+}

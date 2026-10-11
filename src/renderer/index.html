@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' file: data:; media-src file:; frame-src file:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Quire</title>
+<link rel="stylesheet" href="styles.css">
+<script type="module" src="app.js"></script>
+</head>
+<body>
+
+<!-- Welcome: shown when no project is open -->
+<div id="welcome" class="welcome" hidden>
+  <div class="welcome-inner">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><path d="M10 8h20l8 8v24H10z"/><path d="M14 4h20M30 8v8h8" class="ln"/><path d="M16 22h16M16 27h16M16 32h10" class="ln"/></svg>
+      <h1>Quire</h1>
+      <p class="tagline">A writing studio for long projects.</p>
+    </div>
+    <div class="welcome-grid">
+      <form id="new-form" class="welcome-new">
+        <h2>Start a project</h2>
+        <fieldset class="templates" aria-label="Template">
+          <label class="tpl"><input type="radio" name="kind" value="novel" checked><span class="tpl-name">Novel</span><span class="tpl-note">Chapters of scenes, with folders for characters and places</span></label>
+          <label class="tpl"><input type="radio" name="kind" value="story"><span class="tpl-name">Short Story</span><span class="tpl-note">A handful of scenes</span></label>
+          <label class="tpl"><input type="radio" name="kind" value="nonfiction"><span class="tpl-name">Non-fiction</span><span class="tpl-note">Introduction, parts, chapters, sources</span></label>
+          <label class="tpl"><input type="radio" name="kind" value="blank"><span class="tpl-name">Blank</span><span class="tpl-note">One empty text</span></label>
+        </fieldset>
+        <div class="field"><label for="new-title">Title</label><input id="new-title" name="title" type="text" placeholder="Untitled" autocomplete="off"></div>
+        <div class="field"><label for="new-author">Author</label><input id="new-author" name="author" type="text" placeholder="Your name" autocomplete="off"></div>
+        <button class="btn primary" type="submit">Create Project…</button>
+      </form>
+      <div class="welcome-open">
+        <h2>Open</h2>
+        <button id="open-btn" class="btn" type="button">Open Project…</button>
+        <h3>Recent</h3>
+        <ul id="recent" class="recent"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- The project window -->
+<div id="app" class="app" hidden>
+  <header class="toolbar">
+    <div class="tb-group">
+      <button class="tb-btn" data-cmd="toggle-binder" title="Show or hide the binder (⌥⌘B)" aria-label="Binder">
+        <svg viewBox="0 0 16 16"><path d="M1.5 2.5h13v11h-13zM5.5 2.5v11" /></svg>
+      </button>
+      <span id="project-name" class="project-name"></span>
+    </div>
+    <div class="tb-group format" aria-label="Formatting">
+      <select id="para-style" class="tb-select" aria-label="Paragraph style" title="Paragraph style">
+        <option value="body">Body</option>
+        <option value="h1">Heading 1</option>
+        <option value="h2">Heading 2</option>
+        <option value="h3">Heading 3</option>
+        <option value="quote">Block Quote</option>
+      </select>
+      <button class="tb-btn fmt" data-cmd="bold" title="Bold (⌘B)" aria-label="Bold"><b>B</b></button>
+      <button class="tb-btn fmt" data-cmd="italic" title="Italic (⌘I)" aria-label="Italic"><i>I</i></button>
+      <button class="tb-btn fmt" data-cmd="underline" title="Underline (⌘U)" aria-label="Underline"><u>U</u></button>
+      <button class="tb-btn fmt" data-cmd="ul" title="Bulleted list" aria-label="Bulleted list">
+        <svg viewBox="0 0 16 16"><path d="M6 4h8M6 8h8M6 12h8" /><circle cx="2.5" cy="4" r="1" class="fill"/><circle cx="2.5" cy="8" r="1" class="fill"/><circle cx="2.5" cy="12" r="1" class="fill"/></svg>
+      </button>
+      <button class="tb-btn fmt" data-cmd="scene-break" title="Scene break (⌥⌘Enter)" aria-label="Scene break">#</button>
+    </div>
+    <div class="tb-group center">
+      <div class="seg" role="tablist" aria-label="View">
+        <button data-cmd="view-editor" data-view="editor" title="Editor (⌘1)">Editor</button>
+        <button data-cmd="view-corkboard" data-view="corkboard" title="Corkboard (⌘2)">Corkboard</button>
+        <button data-cmd="view-outliner" data-view="outliner" title="Outliner (⌘3)">Outliner</button>
+      </div>
+    </div>
+    <div class="tb-group right">
+      <button class="tb-btn" data-cmd="toggle-split" title="Split editor (⌘\)" aria-label="Split editor">
+        <svg viewBox="0 0 16 16"><path d="M1.5 2.5h13v11h-13zM8 2.5v11" /></svg>
+      </button>
+      <button class="tb-btn" data-cmd="composition" title="Composition mode (⇧⌘Enter)" aria-label="Composition mode">
+        <svg viewBox="0 0 16 16"><path d="M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4" /></svg>
+      </button>
+      <button class="tb-btn" data-cmd="snapshot" title="Take snapshot (⌘5)" aria-label="Take snapshot">
+        <svg viewBox="0 0 16 16"><path d="M1.5 4.5h3l1-2h5l1 2h3v9h-13z"/><circle cx="8" cy="8.5" r="2.5"/></svg>
+      </button>
+      <button class="tb-btn" data-cmd="targets" title="Targets (⇧⌘G)" aria-label="Targets">
+        <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="3"/><circle cx="8" cy="8" r=".8" class="fill"/></svg>
+      </button>
+      <button class="tb-btn wide" data-cmd="compile" title="Compile (⇧⌘E)">Compile</button>
+      <button class="tb-btn" data-cmd="toggle-inspector" title="Show or hide the inspector (⌥⌘I)" aria-label="Inspector">
+        <svg viewBox="0 0 16 16"><path d="M1.5 2.5h13v11h-13zM10.5 2.5v11" /></svg>
+      </button>
+    </div>
+  </header>
+
+  <aside id="binder" class="binder" aria-label="Binder"></aside>
+  <div class="resizer" data-for="binder" aria-hidden="true"></div>
+  <main id="main" class="main"></main>
+  <div class="resizer" data-for="inspector" aria-hidden="true"></div>
+  <aside id="inspector" class="inspector" aria-label="Inspector"></aside>
+
+  <footer class="statusbar">
+    <span id="st-doc" class="st"></span>
+    <span class="grow"></span>
+    <span id="st-session" class="st"></span>
+    <span id="st-draft" class="st"></span>
+    <span id="st-save" class="st save"></span>
+  </footer>
+</div>
+
+<!-- Composition mode controls -->
+<div id="comp-bar" class="comp-bar" hidden>
+  <span id="comp-words"></span>
+  <span class="grow"></span>
+  <button class="comp-btn" data-cmd="typewriter" title="Typewriter scrolling">Typewriter</button>
+  <button class="comp-btn" data-cmd="text-smaller" title="Smaller text">A−</button>
+  <button class="comp-btn" data-cmd="text-bigger" title="Larger text">A+</button>
+  <button class="comp-btn" data-cmd="composition" title="Leave (Esc)">Done</button>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<!-- Targets -->
+<dialog id="dlg-targets" class="dlg">
+  <form method="dialog">
+    <h2>Targets</h2>
+    <div class="field"><label for="t-project">Manuscript target</label><div class="row"><input id="t-project" type="number" min="0" step="1000" placeholder="None"><span class="unit">words</span></div></div>
+    <div class="field"><label for="t-deadline">Deadline</label><input id="t-deadline" type="date"></div>
+    <div class="field"><label for="t-session">Session target</label><div class="row"><input id="t-session" type="number" min="0" step="100" placeholder="None"><span class="unit">words a day</span></div></div>
+    <label class="check"><input id="t-auto" type="checkbox"><span>Work out the session target from the deadline</span></label>
+    <p id="t-summary" class="dlg-note"></p>
+    <div class="dlg-actions">
+      <button class="btn" type="button" id="t-reset">Reset Session Count</button>
+      <span class="grow"></span>
+      <button class="btn" value="cancel">Cancel</button>
+      <button class="btn primary" value="ok" id="t-ok">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Compile -->
+<dialog id="dlg-compile" class="dlg wide">
+  <form method="dialog">
+    <h2>Compile</h2>
+    <div class="compile-grid">
+      <div>
+        <div class="field"><label for="c-format">Format</label>
+          <select id="c-format">
+            <option value="docx">Word document (.docx)</option>
+            <option value="pdf">PDF</option>
+            <option value="md">Markdown (.md)</option>
+            <option value="txt">Plain text (.txt)</option>
+            <option value="html">Web page (.html)</option>
+          </select>
+        </div>
+        <div class="field"><label for="c-title">Title</label><input id="c-title" type="text"></div>
+        <div class="field"><label for="c-author">Author</label><input id="c-author" type="text"></div>
+        <div class="field"><label for="c-font">Font</label>
+          <select id="c-font">
+            <option>Georgia</option>
+            <option>Times New Roman</option>
+            <option>Garamond</option>
+            <option>Courier New</option>
+            <option>Helvetica</option>
+          </select>
+        </div>
+        <label class="check"><input id="c-titlepage" type="checkbox"><span>Title page</span></label>
+        <label class="check"><input id="c-folders" type="checkbox"><span>Folder titles as chapter headings</span></label>
+        <label class="check"><input id="c-texts" type="checkbox"><span>Text titles as headings</span></label>
+        <label class="check"><input id="c-breaks" type="checkbox"><span>Start each chapter on a new page</span></label>
+        <div class="field"><label for="c-sep">Between scenes</label>
+          <select id="c-sep">
+            <option value="#">#</option>
+            <option value="* * *">* * *</option>
+            <option value="⁂">⁂</option>
+            <option value="blank">A blank line</option>
+            <option value="">Nothing</option>
+          </select>
+        </div>
+      </div>
+      <div class="compile-contents">
+        <h3>Contents</h3>
+        <p class="dlg-note">Untick anything to leave out.</p>
+        <div id="c-tree" class="c-tree"></div>
+        <p id="c-count" class="dlg-note"></p>
+      </div>
+    </div>
+    <div class="dlg-actions">
+      <span class="grow"></span>
+      <button class="btn" value="cancel">Cancel</button>
+      <button class="btn primary" value="ok">Compile…</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Project settings -->
+<dialog id="dlg-settings" class="dlg wide">
+  <form method="dialog">
+    <h2>Project Settings</h2>
+    <div class="settings-grid">
+      <div>
+        <div class="field"><label for="p-title">Title</label><input id="p-title" type="text"></div>
+        <div class="field"><label for="p-author">Author</label><input id="p-author" type="text"></div>
+      </div>
+      <div>
+        <h3>Labels</h3>
+        <ul id="p-labels" class="edit-list"></ul>
+        <button class="btn small" type="button" id="p-add-label">Add Label</button>
+      </div>
+      <div>
+        <h3>Statuses</h3>
+        <ul id="p-statuses" class="edit-list"></ul>
+        <button class="btn small" type="button" id="p-add-status">Add Status</button>
+      </div>
+    </div>
+    <div class="dlg-actions">
+      <span class="grow"></span>
+      <button class="btn" value="cancel">Cancel</button>
+      <button class="btn primary" value="ok">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- A snapshot, compared with the current text -->
+<dialog id="dlg-snapshot" class="dlg wide tall">
+  <div class="snap-dlg">
+    <h2 class="snap-heading"></h2>
+    <p class="snap-sub dlg-note"></p>
+    <div class="snap-body"></div>
+    <div class="dlg-actions">
+      <button class="btn snap-delete" type="button">Delete</button>
+      <button class="btn snap-toggle" type="button"></button>
+      <span class="grow"></span>
+      <button class="btn dlg-close" type="button">Close</button>
+      <button class="btn primary snap-restore" type="button">Restore This Version</button>
+    </div>
+  </div>
+</dialog>
+
+</body>
+</html>
