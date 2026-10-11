@@ -49,3 +49,28 @@ jobs:
             dist/*.AppImage
             dist/*.deb
           if-no-files-found: error
+
+  # A version tag (v0.1.0, v0.2.0...) puts the installers on the Releases page.
+  release:
+    needs: package
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: installers
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            installers/*.dmg
+            installers/*.exe
+            installers/*.AppImage
+            installers/*.deb
+          make_latest: true
+          body: |
+            **Mac (Apple Silicon):** download the `.dmg`, open it and drag Quire to Applications. The first time, right-click Quire and choose Open.
+            **Windows:** download the `.exe` and run it. If Windows warns you, choose More info → Run anyway.
+            **Linux:** download the `.AppImage` (make it executable) or the `.deb`.

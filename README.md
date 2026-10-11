@@ -26,6 +26,10 @@ Quire runs on macOS, Windows and Linux. Your work is saved as plain files on you
 - **Templates:** Novel, Short Story, Non-fiction and Blank.
 - Light and dark themes that follow your system, adjustable text size, and autosave.
 
+## Download
+
+Get the latest installer from [Releases](https://github.com/chapter57/quire/releases/latest).
+
 ## Running it
 
 You need [Node.js](https://nodejs.org) 20 or newer.
@@ -44,7 +48,7 @@ npm run dist:win    # .exe installer
 npm run dist:linux  # .AppImage and .deb
 ```
 
-The installers are written to `dist/`. Every push to `main` also builds all three on GitHub Actions; download them from the run's **Artifacts**.
+The installers are written to `dist/`. Every push to `main` also builds all three on GitHub Actions. To publish a version, push a tag such as `v0.1.0`: the installers then appear on the repository's **Releases** page.
 
 The builds aren't code-signed yet. On a Mac, the first time you open Quire, right-click the app and choose **Open**. On Windows, choose **More info → Run anyway**.
 
