@@ -48,7 +48,7 @@ npm run dist:win    # .exe installer
 npm run dist:linux  # .AppImage and .deb
 ```
 
-The installers are written to `dist/`. Every push to `main` also builds all three on GitHub Actions. To publish a version, push a tag such as `v0.1.0`: the installers then appear on the repository's **Releases** page.
+The installers are written to `dist/`. Every push to `main` also builds all three on GitHub Actions. Each push to `main` also puts them on the **Releases** page, under the version in `package.json`; bump the version to start a new release.
 
 The builds aren't code-signed yet. On a Mac, the first time you open Quire, right-click the app and choose **Open**. On Windows, choose **More info → Run anyway**.
 
