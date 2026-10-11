@@ -26,7 +26,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        include:
+          - { name: macOS, os: macos-latest, args: "" }
+          # Intel Macs on macOS 10.13 to 12: Electron 26 is the last to run there.
+          - name: macOS-older
+            os: macos-latest
+            args: "--mac dmg --x64 -c.electronVersion=26.6.10 -c.mac.minimumSystemVersion=10.13 '-c.mac.artifactName=Quire-${version}-older-Macs-Intel.${ext}'"
+          - { name: Windows, os: windows-latest, args: "" }
+          - { name: Linux, os: ubuntu-latest, args: "" }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -35,13 +42,14 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx electron-builder --publish never
+      - run: npx electron-builder --publish never ${{ matrix.args }}
+        shell: bash
         env:
           # No signing certificate yet: build unsigned installers.
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
       - uses: actions/upload-artifact@v4
         with:
-          name: quire-${{ runner.os }}
+          name: quire-${{ matrix.name }}
           path: |
             dist/*.dmg
             dist/*.zip
@@ -79,6 +87,8 @@ jobs:
             installers/*.AppImage
             installers/*.deb
           body: |
-            **Mac (Apple Silicon):** download the `.dmg`, open it and drag Quire to Applications. The first time, right-click Quire and choose Open.
+            **Mac with Apple Silicon (M1 or later), macOS 13 or newer:** download `Quire-…-arm64.dmg`.
+            **Older or Intel Mac (macOS 10.13 to 12):** download `Quire-…-older-Macs-Intel.dmg`.
+            Open the `.dmg` and drag Quire to Applications. The first time, right-click Quire and choose Open.
             **Windows:** download the `.exe` and run it. If Windows warns you, choose More info → Run anyway.
             **Linux:** download the `.AppImage` (make it executable) or the `.deb`.

@@ -28,7 +28,7 @@ Quire runs on macOS, Windows and Linux. Your work is saved as plain files on you
 
 ## Download
 
-Get the latest installer from [Releases](https://github.com/chapter57/quire/releases/latest).
+Get the latest installer from [Releases](https://github.com/chapter57/quire/releases/latest). Macs with Apple Silicon on macOS 13 or newer use the `arm64` download. Intel Macs and older macOS versions (back to 10.13 High Sierra) use the `older-Macs-Intel` download, which is built on Electron 26, the last version that supports them. Electron 26 no longer gets security updates, which matters little for an app that only opens your own files.
 
 ## Running it
 

@@ -12,10 +12,13 @@ const project = require("../../src/main/project");
 
 const ROOT = path.join(__dirname, "../..");
 const shots = process.argv[2] || null;
+// QUIRE_ELECTRON runs the test on another Electron, such as the one for older Macs.
+const executablePath = process.env.QUIRE_ELECTRON || undefined;
 let step = 0;
 
 async function launch(dir, base) {
   const app = await electron.launch({
+    executablePath,
     args: [ROOT, dir, "--no-sandbox"],
     env: { ...process.env, QUIRE_USER_DATA: path.join(base, "userdata") },
   });
@@ -277,7 +280,7 @@ async function main() {
   await app.close();
 
   // ---- the welcome screen ----
-  const empty = await electron.launch({ args: [ROOT, "--no-sandbox"], env: { ...process.env, QUIRE_USER_DATA: path.join(base, "userdata") } });
+  const empty = await electron.launch({ executablePath, args: [ROOT, "--no-sandbox"], env: { ...process.env, QUIRE_USER_DATA: path.join(base, "userdata") } });
   const w2 = await empty.firstWindow();
   await empty.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(1360, 860));
   await w2.waitForSelector("#welcome:not([hidden]) .recent-item");
